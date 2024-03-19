@@ -5,15 +5,15 @@ import http.client
 import json
 import csv
 
-PROJECT_KEY = "omnibus-my-brand-mob"
-API_KEY = "api-7d596d64-a5a9-423d-b071-542162f7e64b"
-ENVIRONMENT_KEY = "production"
+PROJECT_KEY = "your-project-key"
+API_KEY = "your-api-key"
+ENVIRONMENT_KEY = "your-environment-key"
 CONNECTION_URL = "app.launchdarkly.com"
-FILTER = "user.appVersion equals 6.23.1,user.region equals NA,user.appBrand equals Buick"
-SORT = "-ts"
-LIMIT = "50"
-featureFlagName = "msalEnhancementEnabled"
-OUTPUT_FILE = "/Users/brad/Desktop/UserIdsMatchingCriteria-031624.csv"
+FILTER = "your filter"
+SORT = "ts or -ts"
+LIMIT = "minimum value 20, maximum value 50"
+featureFlagName = "your-flag-key"
+OUTPUT_FILE = "local output file location"
 
 def get_feature_flag_status_for_user(userId):
 #Todo read the csv file and get flag status
@@ -83,7 +83,7 @@ def get_user_matching_contexts():
 
 def main():
     response = get_user_matching_contexts()
-    get_feature_flag_status_for_user("9dc0e39c-dd3f-4144-bd3d-6414c6ee0583")
+    get_feature_flag_status_for_user("context-key")
 
 if __name__ == "__main__":
   main()
