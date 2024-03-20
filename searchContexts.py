@@ -3,11 +3,11 @@ import http.client
 import json
 import csv
 
-def get_feature_flag_status_for_user(userId):
+def get_feature_flag_status_for_user(context):
 #Todo read the csv file and get flag status
-    print("Evaluating Flag Status for userId: ", userId)
+    print("Evaluating Flag Status for context: ", context)
     evaluateUrlPath = "/api/v2/projects/" + os.environ['projectKey'] + "/environments/" + os.environ['environmentKey'] + "/flags/evaluate?filter=query%20equals%20" + os.environ['featureFlagKey']
-    evaluatePayload = "{\"key\": \"" + userId + "\",\"kind\": \"user\"}"
+    evaluatePayload = "{\"key\": \"" + context + "\",\"kind\": \"user\"}"
     response = request_connection(evaluateUrlPath, evaluatePayload)
     print(response)
     
