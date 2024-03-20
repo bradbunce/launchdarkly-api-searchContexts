@@ -1,36 +1,24 @@
-#!/usr/bin/python3
-# Get the list of users feature is enabled to
-
+import os
 import http.client
 import json
 import csv
 
-PROJECT_KEY = "your-project-key"
-API_KEY = "your-api-key"
-ENVIRONMENT_KEY = "your-environment-key"
-CONNECTION_URL = "app.launchdarkly.com"
-FILTER = "your filter"
-SORT = "ts or -ts"
-LIMIT = "minimum value 20, maximum value 50"
-featureFlagName = "your-flag-key"
-OUTPUT_FILE = "local output file location"
-
 def get_feature_flag_status_for_user(userId):
 #Todo read the csv file and get flag status
     print("Evaluating Flag Status for userId: ", userId)
-    evaluateUrlPath = "/api/v2/projects/" + PROJECT_KEY + "/environments/" + ENVIRONMENT_KEY + "/flags/evaluate?filter=query%20equals%20" + featureFlagName
+    evaluateUrlPath = "/api/v2/projects/" + os.environ['projectKey'] + "/environments/" + os.environ['environmentKey'] + "/flags/evaluate?filter=query%20equals%20" + os.environ['featureFlagKey']
     evaluatePayload = "{\"key\": \"" + userId + "\",\"kind\": \"user\"}"
     response = request_connection(evaluateUrlPath, evaluatePayload)
     print(response)
     
     
-def request_connection(CONNECTION_URLPath, payload):
+def request_connection(connectionUrlPath, payload):
     headers = {
       "Content-Type": "application/json",
-      "Authorization": API_KEY
+      "Authorization": os.environ['apiKey']
     }
-    conn = http.client.HTTPSConnection(CONNECTION_URL)
-    conn.request("POST", CONNECTION_URLPath, payload, headers)
+    conn = http.client.HTTPSConnection(os.environ['connectionUrl'])
+    conn.request("POST", connectionUrlPath, payload, headers)
     response = conn.getresponse()
     data = response.read().decode("utf-8")
     if response.status == 200:
@@ -40,7 +28,7 @@ def request_connection(CONNECTION_URLPath, payload):
         return {}
         
 def export_userIds_to_csv(items):
-    file = open(OUTPUT_FILE, 'a')
+    file = open(os.environ['outputFile'], 'a')
     writer = csv.writer(file)
     for item in items:
         context = item["context"]
@@ -49,9 +37,9 @@ def export_userIds_to_csv(items):
         writer.writerow(singleRow)
     
 def get_user_matching_contexts():
-    CONNECTION_URLPath = "/api/v2/projects/" + PROJECT_KEY + "/environments/" + ENVIRONMENT_KEY + "/contexts/search"
-    payload = "{\"filter\":\"" + FILTER + "\",\"sort\": \"" + SORT + "\",\"limit\": " + LIMIT + "}"
-    contextResponse = request_connection(CONNECTION_URLPath, payload)
+    connectionUrlPath = "/api/v2/projects/" + os.environ['projectKey'] + "/environments/" + os.environ['environmentKey'] + "/contexts/search"
+    payload = "{\"filter\":\"" + os.environ['contextFilter'] + "\",\"sort\": \"" + os.environ['sort'] + "\",\"limit\": " + os.environ['limit'] + "}"
+    contextResponse = request_connection(connectionUrlPath, payload)
     if len(contextResponse) != 0:
         totalContextsCount = contextResponse["totalCount"]
         print("Total context count: ", totalContextsCount)
@@ -63,8 +51,8 @@ def get_user_matching_contexts():
         while len(contextsReturned) != 0:
             export_userIds_to_csv(contextsReturned)
             continuationToken = contextResponse["continuationToken"]
-            payload = "{\"filter\":\"" + FILTER + "\",\"sort\": \"" + SORT + "\",\"limit\": " + LIMIT + ",\"continuationToken\": \"" + continuationToken + "\"}"
-            contextResponse = request_connection(CONNECTION_URLPath, payload)
+            payload = "{\"filter\":\"" + os.environ['contextFilter'] + "\",\"sort\": \"" + os.environ['sort'] + "\",\"limit\": " + os.environ['limit'] + ",\"continuationToken\": \"" + continuationToken + "\"}"
+            contextResponse = request_connection(connectionUrlPath, payload)
             if len(contextResponse) != 0:
                 contextsReturned = contextResponse["items"]
                 additionalContextsReturnedCount = len(contextsReturned)
