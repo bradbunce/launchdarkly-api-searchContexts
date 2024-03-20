@@ -71,7 +71,7 @@ def get_user_matching_contexts():
 
 def main():
     response = get_user_matching_contexts()
-    get_feature_flag_status_for_user("4667")
+    get_feature_flag_status_for_user(os.environ['contextKey'])
 
 if __name__ == "__main__":
   main()
