@@ -63,10 +63,10 @@ def get_user_matching_contexts():
                 contextsReturnedCount = sumContextsReturnedCount
             else:
                 break
-        print('Retreived all userIds')
+        print('Retreived all contexts')
             
     else:
-        print('Cannot get userIds, EXITING!!!!')
+        print('Cannot get contexts, EXITING!!!!')
 
 
 def main():
