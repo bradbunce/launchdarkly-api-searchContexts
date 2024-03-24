@@ -3,7 +3,7 @@ import http.client
 import json
 import csv
 
-def get_feature_flag_status_for_user(context):
+def get_feature_flag_variation_for_context(context):
 #Todo read the csv file and get flag status
     print("Evaluating Flag Status for context: ", context)
     evaluateUrlPath = "/api/v2/projects/" + os.environ['projectKey'] + "/environments/" + os.environ['environmentKey'] + "/flags/evaluate?filter=query%20equals%20" + os.environ['featureFlagKey']
@@ -27,7 +27,7 @@ def request_connection(connectionUrlPath, payload):
         print("*** Error getting the contexts: ", response.status, response.reason, data)
         return {}
         
-def export_userIds_to_csv(items):
+def export_contexts_to_csv(items):
     file = open(os.environ["outputFile"], "a")
     writer = csv.writer(file)
     for item in items:
@@ -70,15 +70,15 @@ def get_contexts():
                 # print("*** this is now all",contextsReturnedCount,"contexts: ",contexts)
             else:
                 break
-        print("*** Retreived all contexts! ***")
-            
+            print("*** Retreived all contexts! ***")
+            print(contexts)
     else:
         print("*** Cannot get contexts, exiting! ***")
 
 
 def main():
     response = get_contexts()
-    get_feature_flag_status_for_user(os.environ["contextKey"])
+    get_feature_flag_variation_for_context(os.environ["contextKey"])
 
 if __name__ == "__main__":
   main()
