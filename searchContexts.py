@@ -51,7 +51,7 @@ def get_contexts():
         # print("*** first page of contexts: ",contexts,"*** end of first page of contexts ***")
 
         while (contextsReturnedCount) < (totalContextsCount):
-            # export_userIds_to_csv(contextsReturned)
+            export_contexts_to_csv(contexts)
             continuationToken = contextResponse["continuationToken"]
             payload = "{\"filter\":\"" + os.environ['contextFilter'] + "\",\"sort\": \"" + os.environ['sort'] + "\",\"limit\": " + os.environ['limit'] + ",\"continuationToken\": \"" + continuationToken + "\"}"
             contextResponse = request_connection(connectionUrlPath, payload)
@@ -68,17 +68,17 @@ def get_contexts():
                 # contextsReturnedCount = len(contexts)
                 # print(contextsReturnedCount)
                 # print("*** this is now all",contextsReturnedCount,"contexts: ",contexts)
+                export_contexts_to_csv(contextsReturned)
             else:
                 break
             print("*** Retreived all contexts! ***")
-            print(contexts)
     else:
         print("*** Cannot get contexts, exiting! ***")
 
 
 def main():
     response = get_contexts()
-    get_feature_flag_variation_for_context(os.environ["contextKey"])
+    # get_feature_flag_variation_for_context(os.environ["contextKey"])
 
 if __name__ == "__main__":
   main()
