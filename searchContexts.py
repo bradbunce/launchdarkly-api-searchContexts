@@ -27,10 +27,10 @@ def request_connection(connectionUrlPath, payload):
         print("*** Error getting the contexts: ", response.status, response.reason, data)
         return {}
         
-def export_contexts_to_csv(items):
+def export_contexts_to_csv(contexts):
     file = open(os.environ["outputFile"], "a")
     writer = csv.writer(file)
-    for item in items:
+    for item in contexts:
         context = item["context"]
         userKey = context["key"]
         singleRow = [userKey]
@@ -48,8 +48,7 @@ def get_contexts():
         percentageContextsReturned = (contextsReturnedCount/totalContextsCount)*100
         print("*** Total contexts returned: ", contextsReturnedCount, "out of",totalContextsCount, "- Percent of total contexts returned: ","%.2f%%" % percentageContextsReturned)
         contexts = contextsReturned
-        # print("*** first page of contexts: ",contexts,"*** end of first page of contexts ***")
-
+        
         while (contextsReturnedCount) < (totalContextsCount):
             export_contexts_to_csv(contexts)
             continuationToken = contextResponse["continuationToken"]
@@ -57,7 +56,6 @@ def get_contexts():
             contextResponse = request_connection(connectionUrlPath, payload)
             if len(contextResponse) != 0:
                 contextsReturned = contextResponse["items"]
-                # print(contextsReturned)
                 additionalContextsReturnedCount = len(contextsReturned)
                 print("*** Additional contexts returned during refresh: ", additionalContextsReturnedCount)
                 sumContextsReturnedCount = contextsReturnedCount + additionalContextsReturnedCount
@@ -65,9 +63,6 @@ def get_contexts():
                 print("*** Total contexts returned: ", sumContextsReturnedCount, "out of",totalContextsCount, "- Percent of total contexts returned: ","%.2f%%" % percentageContextsReturned)
                 contextsReturnedCount = sumContextsReturnedCount
                 contexts.append(contextsReturned)
-                # contextsReturnedCount = len(contexts)
-                # print(contextsReturnedCount)
-                # print("*** this is now all",contextsReturnedCount,"contexts: ",contexts)
                 export_contexts_to_csv(contextsReturned)
             else:
                 break
