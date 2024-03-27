@@ -78,7 +78,6 @@ def get_contexts():
 def get_feature_flag_variations_for_contexts(contextKeys):
     for contextKey in contextKeys:
         print("Evaluating flag values for context: ", contextKey)
-        #evaluateUrlPath = "/api/v2/projects/" + os.environ['projectKey'] + "/environments/" + os.environ['environmentKey'] + "/flags/evaluate?filter=query%20equals%20" + os.environ['featureFlagKey']
         evaluateUrlPath = "/api/v2/projects/" + os.environ['projectKey'] + "/environments/" + os.environ['environmentKey'] + "/flags/evaluate"
         evaluatePayload = "{\"key\": \"" + contextKey + "\",\"kind\": \"user\"}"
         flagEvaluation = request_connection(evaluateUrlPath, evaluatePayload)
