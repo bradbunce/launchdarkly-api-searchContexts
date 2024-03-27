@@ -2,16 +2,8 @@ import os
 import http.client
 import json
 import csv
+import time
 
-def get_feature_flag_variation_for_context(context):
-#Todo read the csv file and get flag status
-    print("Evaluating Flag Status for context: ", context)
-    evaluateUrlPath = "/api/v2/projects/" + os.environ['projectKey'] + "/environments/" + os.environ['environmentKey'] + "/flags/evaluate?filter=query%20equals%20" + os.environ['featureFlagKey']
-    evaluatePayload = "{\"key\": \"" + context + "\",\"kind\": \"user\"}"
-    response = request_connection(evaluateUrlPath, evaluatePayload)
-    print(response)
-    
-    
 def request_connection(connectionUrlPath, payload):
     headers = {
       "Content-Type": "application/json",
@@ -30,12 +22,27 @@ def request_connection(connectionUrlPath, payload):
 def export_contexts_to_csv(contexts):
     file = open(os.environ["outputFile"], "a")
     writer = csv.writer(file)
+    headerRow = "Context Kind","Context Key"
+    writer.writerow(headerRow)
     for item in contexts:
         context = item["context"]
-        userKey = context["key"]
-        singleRow = [userKey]
+        contextKind = context["kind"]
+        contextKey = context["key"]
+        singleRow = [contextKind,contextKey]
         writer.writerow(singleRow)
-    
+
+def export_contexts(contexts):
+    contextKeyArray = []
+    for item in contexts:
+        context = item["context"]
+        contextKey = context["key"]
+        if contextKey != "":
+            contextKeyArray.append(contextKey)
+        else:
+            break
+    contextKeys = list(set(contextKeyArray))
+    return(contextKeys)
+            
 def get_contexts():
     connectionUrlPath = "/api/v2/projects/" + os.environ['projectKey'] + "/environments/" + os.environ['environmentKey'] + "/contexts/search"
     payload = "{\"filter\":\"" + os.environ['contextFilter'] + "\",\"sort\": \"" + os.environ['sort'] + "\",\"limit\": " + os.environ['limit'] + "}"
@@ -48,9 +55,7 @@ def get_contexts():
         percentageContextsReturned = (contextsReturnedCount/totalContextsCount)*100
         print("*** Total contexts returned: ", contextsReturnedCount, "out of",totalContextsCount, "- Percent of total contexts returned: ","%.2f%%" % percentageContextsReturned)
         contexts = contextsReturned
-        
         while (contextsReturnedCount) < (totalContextsCount):
-            export_contexts_to_csv(contexts)
             continuationToken = contextResponse["continuationToken"]
             payload = "{\"filter\":\"" + os.environ['contextFilter'] + "\",\"sort\": \"" + os.environ['sort'] + "\",\"limit\": " + os.environ['limit'] + ",\"continuationToken\": \"" + continuationToken + "\"}"
             contextResponse = request_connection(connectionUrlPath, payload)
@@ -62,18 +67,34 @@ def get_contexts():
                 percentageContextsReturned = (sumContextsReturnedCount/totalContextsCount)*100
                 print("*** Total contexts returned: ", sumContextsReturnedCount, "out of",totalContextsCount, "- Percent of total contexts returned: ","%.2f%%" % percentageContextsReturned)
                 contextsReturnedCount = sumContextsReturnedCount
-                contexts.append(contextsReturned)
-                export_contexts_to_csv(contextsReturned)
+                contexts.extend(contextsReturned)
             else:
                 break
             print("*** Retreived all contexts! ***")
     else:
         print("*** Cannot get contexts, exiting! ***")
+    return(contexts)
 
+def get_feature_flag_variations_for_contexts(contextKeys):
+    for contextKey in contextKeys:
+        print("Evaluating flag values for context: ", contextKey)
+        #evaluateUrlPath = "/api/v2/projects/" + os.environ['projectKey'] + "/environments/" + os.environ['environmentKey'] + "/flags/evaluate?filter=query%20equals%20" + os.environ['featureFlagKey']
+        evaluateUrlPath = "/api/v2/projects/" + os.environ['projectKey'] + "/environments/" + os.environ['environmentKey'] + "/flags/evaluate"
+        evaluatePayload = "{\"key\": \"" + contextKey + "\",\"kind\": \"user\"}"
+        flagEvaluation = request_connection(evaluateUrlPath, evaluatePayload)
+        flagValues = flagEvaluation["items"]
+        for flag in flagValues:
+            flagName = flag["name"]
+            flagKey = flag["key"]
+            flagValue = flag["_value"]
+            print(flagName,flagKey,flagValue)
+        time.sleep(2)
 
 def main():
     response = get_contexts()
-    # get_feature_flag_variation_for_context(os.environ["contextKey"])
+    # export_contexts_to_csv(response)
+    contextKeys = export_contexts(response)
+    get_feature_flag_variations_for_contexts(contextKeys)
 
 if __name__ == "__main__":
   main()
