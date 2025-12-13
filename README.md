@@ -12,21 +12,24 @@ A Python script to search and analyze contexts in LaunchDarkly using the LaunchD
 
 ## Prerequisites
 
-- Python 3.6+
+- Python 3.12+ (Docker uses Python 3.12)
 - Valid LaunchDarkly API key
 - Access to a LaunchDarkly project and environment
+- Docker (optional, for containerized deployment)
 
 ## Installation
 
+### Option 1: Local Installation
+
 1. Clone this repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/bradbunce/launchdarkly-api-searchContexts.git
    cd launchdarkly-api-searchContexts
    ```
 
 2. Install required dependencies:
    ```bash
-   pip3 install python-dotenv
+   pip3 install -r requirements.txt
    ```
 
 3. Set up your environment variables by copying the example file:
@@ -37,6 +40,25 @@ A Python script to search and analyze contexts in LaunchDarkly using the LaunchD
 4. Edit the `.env` file with your actual LaunchDarkly configuration:
    ```bash
    nano .env
+   ```
+
+### Option 2: Docker Installation
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/bradbunce/launchdarkly-api-searchContexts.git
+   cd launchdarkly-api-searchContexts
+   ```
+
+2. Set up your environment variables:
+   ```bash
+   cp .env.example .env
+   nano .env  # Edit with your configuration
+   ```
+
+3. Build the Docker image:
+   ```bash
+   docker build -t launchdarkly-context-search .
    ```
 
 ## Configuration
@@ -69,11 +91,44 @@ outputFile=/path/to/your/output.csv
 
 ## Usage
 
+### Local Usage
+
 Run the script:
 
 ```bash
 python3 searchContexts.py
 ```
+
+### Docker Usage
+
+Run with Docker (mounting your .env file and output directory):
+
+```bash
+docker run --rm \
+  --env-file .env \
+  -v $(pwd)/output:/app/output \
+  launchdarkly-context-search
+```
+
+**Note:** Make sure to update the `outputFile` path in your `.env` to `/app/output/your-file.csv` when using Docker.
+
+### Docker Compose Usage (Recommended)
+
+For the easiest Docker experience:
+
+```bash
+# Build and run with docker-compose
+docker-compose up --build
+
+# Or run in the background
+docker-compose up -d --build
+```
+
+This will automatically:
+- Build the Docker image
+- Mount your `.env` file for configuration
+- Create an `output` directory for CSV files
+- Set the output path to `/app/output/contexts.csv`
 
 The script will:
 1. Search for contexts matching your filter criteria

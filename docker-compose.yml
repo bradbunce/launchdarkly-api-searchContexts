@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  launchdarkly-search:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - ./output:/app/output
+    environment:
+      - outputFile=/app/output/contexts.csv
